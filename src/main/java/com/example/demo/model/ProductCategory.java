@@ -21,13 +21,14 @@ public class ProductCategory {
     @Column(name = "id", updatable = false)
     private Long id;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
     private CategoryName name;
 
     @OneToMany(mappedBy = "category")
     private List<Product> products;
 
-    static enum CategoryName {
+    public static enum CategoryName {
         CD, LP, DVD, BOOK
     }
 }
