@@ -18,6 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ProductRepositoryTest {
     @Autowired
     ProductRepository productRepository;
@@ -28,7 +29,6 @@ class ProductRepositoryTest {
     }
 
     @Test
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     @DisplayName("Should find all the products in a given category")
     void shouldFindProductsByCategoryId() {
         // given
@@ -44,7 +44,6 @@ class ProductRepositoryTest {
     }
 
     @Test
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     @DisplayName("Should find all the products for a given artist")
     void shouldFindProductsByArtist() {
         // given
@@ -60,7 +59,6 @@ class ProductRepositoryTest {
     }
 
     @Test
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     @DisplayName("Should find all the products for a given product name or just a part of it")
     void shouldFindProductsByProductName() {
         // given
@@ -77,7 +75,6 @@ class ProductRepositoryTest {
     }
 
     @Test
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     @DisplayName("Should find all the products between provided price range inclusive")
     void shouldFindRangePricedProduct() {
         // given
@@ -94,7 +91,6 @@ class ProductRepositoryTest {
     }
 
     @Test
-    @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
     void getMostExpensiveProductInTheCatalogue() {
         // given
         BigDecimal price = new BigDecimal("35.00");
