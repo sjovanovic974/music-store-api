@@ -26,7 +26,7 @@ public class DataLoader implements CommandLineRunner {
         loadData(productRepository);
     }
 
-    static void loadData(ProductRepository productRepository) {
+    public static void loadData(ProductRepository productRepository) {
         ProductCategory cd = ProductCategory.builder()
                 .name(ProductCategory.CategoryName.CD)
                 .build();
