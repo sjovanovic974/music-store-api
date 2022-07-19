@@ -24,7 +24,7 @@ class ProductRepositoryTest {
     ProductRepository productRepository;
 
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         DataLoader.loadData(productRepository);
     }
 
