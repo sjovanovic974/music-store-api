@@ -1,13 +1,11 @@
 package com.example.demo.repository;
 
-import com.example.demo.dataloader.DataLoader;
 import com.example.demo.model.Product;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -16,15 +14,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class ProductRepositoryTest {
     @Autowired
     private ProductRepository productRepository;
-
-    @BeforeEach
-    public void setup() {
-        DataLoader.loadData(productRepository);
-    }
 
     @Test
     @DisplayName("Should find all the products in a given category")
