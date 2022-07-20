@@ -1,6 +1,7 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,4 +34,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "SELECT * FROM products ORDER BY unit_price DESC LIMIT 1",
             nativeQuery = true)
     Product getMostExpensiveProductInTheCatalogue();
+
+    // Utility method to find last saved product in DB for a given category
+    Optional<Product> findTopByCategoryOrderByIdDesc(ProductCategory category);
 }
