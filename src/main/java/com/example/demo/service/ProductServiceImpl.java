@@ -39,27 +39,39 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product saveProduct(Product product) {
-        if (product.getSku() == null) {
-            String nextSku = product.getCategory().getName() + "-000001";
+        // not allowing external setting of sku value
+        product.setSku(null);
 
-            Product lastSaved = productRepository.findTopByCategoryOrderByIdDesc(product.getCategory()).
-                    orElse(null);
+        // default sku value
+        String nextSku = product.getCategory().getName() + "-000001";
 
-            if (lastSaved != null) {
-                String categoryName = product.getCategory().getName().toString();
+        // check if there are already products in this category in DB
+        Optional<Product> lastSaved = productRepository.findTopByCategoryOrderByIdDesc(product.getCategory());
 
-                //Extracting number from the sku, adding 1 for dash "-" after categoryName
-                String currentSkuNumber = lastSaved.getSku().substring(categoryName.length() + 1);
-
-                // Adding 1 to the last saved sku number, i.e. simulating increment
-                Integer number = (Integer.parseInt(currentSkuNumber)) + 1;
-
-                nextSku = categoryName + "-" + String.format("%06d", number);
-            }
-
-            product.setSku(nextSku);
+        // if there are products in the same category in DB call function to get new sku
+        if (lastSaved.isPresent()) {
+            nextSku = getNextSku(product, lastSaved.get());
         }
+
+        product.setSku(nextSku);
+
         return productRepository.save(product);
+    }
+
+    public String getNextSku(Product product, Product lastSaved) {
+
+        String nextSku = "";
+        String categoryName = product.getCategory().getName().toString();
+
+        //Extracting number from the sku, adding 1 for dash "-" after categoryName
+        String currentSkuNumber = lastSaved.getSku().substring(categoryName.length() + 1);
+
+        // Adding 1 to the last saved sku number, i.e. simulating increment
+        Integer number = (Integer.parseInt(currentSkuNumber)) + 1;
+
+        nextSku = categoryName + "-" + String.format("%06d", number);
+
+        return nextSku;
     }
 
     @Override
@@ -135,6 +147,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getMostExpensiveProductInTheCatalogue() {
-        return productRepository.getMostExpensiveProductInTheCatalogue();
+        Product mostExpensiveProductInTheCatalogue = productRepository.getMostExpensiveProductInTheCatalogue();
+
+        if (mostExpensiveProductInTheCatalogue == null) {
+            throw new IllegalStateException("No products in Database!");
+        }
+        return mostExpensiveProductInTheCatalogue;
     }
 }
+

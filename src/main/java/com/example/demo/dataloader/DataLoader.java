@@ -23,23 +23,28 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        loadData(productRepository);
+        List<Product> products = loadData();
+        productRepository.saveAll(products);
     }
 
-    public static void loadData(ProductRepository productRepository) {
+    public static List<Product> loadData() {
         ProductCategory cd = ProductCategory.builder()
+                .id(0L)
                 .name(ProductCategory.CategoryName.CD)
                 .build();
 
         ProductCategory lp = ProductCategory.builder()
+                .id(1L)
                 .name(ProductCategory.CategoryName.LP)
                 .build();
 
         ProductCategory dvd = ProductCategory.builder()
+                .id(2L)
                 .name(ProductCategory.CategoryName.DVD)
                 .build();
 
         ProductCategory book = ProductCategory.builder()
+                .id(3L)
                 .name(ProductCategory.CategoryName.BOOK)
                 .build();
 
@@ -166,6 +171,6 @@ public class DataLoader implements CommandLineRunner {
                 .unitsInStock(1)
                 .build();
 
-        productRepository.saveAll(List.of(master, dark, justice, live, powerslave, parti, ride, trooper, koncert));
+        return List.of(master, dark, justice, live, powerslave, parti, ride, trooper, koncert);
     }
 }
