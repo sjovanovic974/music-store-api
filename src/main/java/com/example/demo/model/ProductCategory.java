@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,11 +28,15 @@ public class ProductCategory {
     @Column(name = "name", nullable = false)
     private CategoryName name;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "category")
-    private List<Product> products;
+    List<Product> products;
 
     public static enum CategoryName {
-        CD, LP, DVD, BOOK
+        @JsonProperty("CD") CD,
+        @JsonProperty("LP") LP,
+        @JsonProperty("DVD") DVD,
+        @JsonProperty("BOOK") BOOK
     }
 }
 

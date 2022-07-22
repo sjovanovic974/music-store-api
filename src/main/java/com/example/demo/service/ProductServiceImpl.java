@@ -2,7 +2,11 @@ package com.example.demo.service;
 
 import com.example.demo.error.exceptions.CustomApiNotFoundException;
 import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
+import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
+import com.example.demo.model.ProductCategory;
+import com.example.demo.repository.ArtistRepository;
+import com.example.demo.repository.ProductCategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,9 +23,14 @@ import java.util.Optional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ArtistRepository artistRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+
+    public ProductServiceImpl(ProductRepository productRepository, ArtistRepository artistRepository, ProductCategoryRepository productCategoryRepository) {
         this.productRepository = productRepository;
+        this.artistRepository = artistRepository;
+        this.productCategoryRepository = productCategoryRepository;
     }
 
 
@@ -41,14 +50,29 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product saveProduct(Product product) {
-        // not allowing external setting of sku value
-        product.setSku(null);
+
+        // check if category already exist
+        Optional<ProductCategory> category =
+                productCategoryRepository.findById(product.getCategory().getId());
+
+        category.ifPresentOrElse(product::setCategory, () -> {
+            throw new CustomApiNotFoundException("You must use valid category name!");
+        });
+
+        // check if artist already exist
+        Optional<Artist> artist = artistRepository.findById(product.getArtist().getId());
+        if (artist.isPresent()) {
+            product.setArtist(artist.get());
+        } else {
+            throw new CustomApiNotFoundException("No such artist in DB!");
+        }
 
         // default sku value
         String nextSku = product.getCategory().getName() + "-000001";
 
         // check if there are already products in this category in DB
-        Optional<Product> lastSaved = productRepository.findTopByCategoryOrderByIdDesc(product.getCategory());
+        Optional<Product> lastSaved = productRepository
+                .findTopByCategoryOrderByIdDesc(product.getCategory());
 
         // if there are products in the same category in DB call function to get new sku
         if (lastSaved.isPresent()) {
@@ -63,6 +87,7 @@ public class ProductServiceImpl implements ProductService {
     public String getNextSku(Product product, Product lastSaved) {
 
         String nextSku = "";
+
         String categoryName = product.getCategory().getName().toString();
 
         //Extracting number from the sku, adding 1 for dash "-" after categoryName

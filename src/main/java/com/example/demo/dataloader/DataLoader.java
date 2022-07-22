@@ -3,6 +3,8 @@ package com.example.demo.dataloader;
 import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductCategory;
+import com.example.demo.repository.ArtistRepository;
+import com.example.demo.repository.ProductCategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
@@ -16,52 +18,50 @@ import java.util.List;
 public class DataLoader implements CommandLineRunner {
 
     private final ProductRepository productRepository;
+    private final ArtistRepository artistRepository;
+    private final ProductCategoryRepository productCategoryRepository;
 
-    public DataLoader(ProductRepository productRepository) {
+    public DataLoader(ProductRepository productRepository, ArtistRepository artistRepository, ProductCategoryRepository productCategoryRepository) {
         this.productRepository = productRepository;
+        this.artistRepository = artistRepository;
+        this.productCategoryRepository = productCategoryRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        List<Product> products = loadData();
-        productRepository.saveAll(products);
-    }
-
-    public static List<Product> loadData() {
         ProductCategory cd = ProductCategory.builder()
-                .id(0L)
                 .name(ProductCategory.CategoryName.CD)
                 .build();
 
         ProductCategory lp = ProductCategory.builder()
-                .id(1L)
                 .name(ProductCategory.CategoryName.LP)
                 .build();
 
         ProductCategory dvd = ProductCategory.builder()
-                .id(2L)
                 .name(ProductCategory.CategoryName.DVD)
                 .build();
 
         ProductCategory book = ProductCategory.builder()
-                .id(3L)
                 .name(ProductCategory.CategoryName.BOOK)
                 .build();
 
         Artist iron = Artist.builder()
                 .name("Iron Maiden")
-                .country("UK")
                 .build();
 
         Artist metallica = Artist.builder()
                 .name("Metallica")
-                .country("USA")
                 .build();
 
         Artist partibrejkers = Artist.builder()
                 .name("Partibrejkers")
-                .country("Serbia")
                 .build();
+
+        List<ProductCategory> categories = List.of(cd, lp, dvd, book);
+        productCategoryRepository.saveAll(categories);
+
+        List<Artist> artists = List.of(iron, metallica, partibrejkers);
+        artistRepository.saveAll(artists);
 
         Product master = Product.builder()
                 .name("Master of Puppets")
@@ -171,6 +171,9 @@ public class DataLoader implements CommandLineRunner {
                 .unitsInStock(1)
                 .build();
 
-        return List.of(master, dark, justice, live, powerslave, parti, ride, trooper, koncert);
+        List<Product> products =
+                List.of(master, dark, justice, live, powerslave, parti, ride, trooper, koncert);
+
+        productRepository.saveAll(products);
     }
 }

@@ -56,11 +56,11 @@ public class Product {
     @UpdateTimestamp
     private LocalDateTime lastUpdated;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, optional = false)
+    @ManyToOne(cascade = {CascadeType.REFRESH}, optional = false)
     @JoinColumn(name = "artist_id", referencedColumnName = "id")
     private Artist artist;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, optional = false)
+    @ManyToOne(cascade = {CascadeType.REFRESH}, optional = false)
     //fetch = FetchType.EAGER is default for @ManyToOne relationship
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private ProductCategory category;

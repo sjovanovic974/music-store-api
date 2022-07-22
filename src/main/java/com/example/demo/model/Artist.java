@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,9 +25,7 @@ public class Artist {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "country", nullable = false)
-    private String country;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "artist")
     List<Product> products;
 }
