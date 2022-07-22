@@ -76,13 +76,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(Product product) {
-        productRepository.findById(product.getId())
+        Product productFromDB = productRepository.findById(product.getId())
                 .orElseThrow(() -> {
                     log.error("Cannot update product! Product with id " + product.getId() + " was not found!");
                     return new IllegalArgumentException("Cannot update product! Product with id "
                             + product.getId() + " was not found!");
                 });
 
+        if (!productFromDB.getSku().equals(product.getSku())) {
+            throw new IllegalArgumentException("You cannot update sku!");
+        }
         return productRepository.save(product);
     }
 

@@ -25,7 +25,7 @@ public class Product {
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @Column(name = "sku", nullable = false)
+    @Column(name = "sku", nullable = false, updatable = false)
     private String sku;
 
     @Column(name = "name", nullable = false)

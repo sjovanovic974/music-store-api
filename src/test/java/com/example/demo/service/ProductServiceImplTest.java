@@ -24,7 +24,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -141,6 +140,7 @@ public class ProductServiceImplTest {
         // given
         Product product = new Product();
         product.setId(3L);
+        product.setSku("CD-000001");
         product.setUnitPrice(new BigDecimal("20.00"));
 
         // when
@@ -158,7 +158,7 @@ public class ProductServiceImplTest {
 
     @Test
     @DisplayName("Should throw an Illegal Argument Exception when updating the product")
-    void updateProductWithException() {
+    void updateProductWithIdException() {
         // given
         Product product = new Product(); // no id it will throw an exception
 
@@ -166,6 +166,26 @@ public class ProductServiceImplTest {
         assertThatThrownBy(() -> productService.updateProduct(product))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Cannot update product! Product with id " + product.getId() + " was not found!");
+    }
+
+    @Test
+    @DisplayName("Should throw an Illegal Argument Exception when updating the product")
+    void updateProductWithSkuException() {
+        // given
+        Product product = new Product();
+        product.setId(1L);
+        product.setSku("CD-000001");
+
+        Product productUpdated = new Product();
+        productUpdated.setSku("CD-000002");
+
+        // when
+        when(productRepository.findById(anyLong())).thenReturn(Optional.of(productUpdated));
+
+        // then
+        assertThatThrownBy(() -> productService.updateProduct(product))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("You cannot update sku!");
     }
 
     @Test
