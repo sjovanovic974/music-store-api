@@ -1,5 +1,7 @@
 package com.example.demo.service;
 
+import com.example.demo.error.exceptions.CustomApiNotFoundException;
+import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
 import com.example.demo.model.Product;
 import com.example.demo.repository.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +35,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findById(id).orElseThrow(
                 () -> {
                     log.error("Product with id " + id + " was not found!");
-                    return new IllegalArgumentException("Product with id " + id + " was not found!");
+                    return new CustomApiNotFoundException("Product with id " + id + " was not found!");
                 });
     }
 
@@ -79,12 +81,12 @@ public class ProductServiceImpl implements ProductService {
         Product productFromDB = productRepository.findById(product.getId())
                 .orElseThrow(() -> {
                     log.error("Cannot update product! Product with id " + product.getId() + " was not found!");
-                    return new IllegalArgumentException("Cannot update product! Product with id "
+                    return new CustomApiNotFoundException("Cannot update product! Product with id "
                             + product.getId() + " was not found!");
                 });
 
         if (!productFromDB.getSku().equals(product.getSku())) {
-            throw new IllegalArgumentException("You cannot update sku!");
+            throw new SkuCannotBeUpdatedException("You cannot update sku!");
         }
         return productRepository.save(product);
     }
@@ -94,7 +96,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cannot delete! Product with " + id + " was not found!");
-                    return new IllegalArgumentException("Cannot delete! Product with " +
+                    return new CustomApiNotFoundException("Cannot delete! Product with " +
                             id + " was not found!");
                 });
 
@@ -107,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (products.getContent().size() == 0) {
             log.error("No such category found!");
-            throw new IllegalArgumentException("No such category found!");
+            throw new CustomApiNotFoundException("No such category found!");
         }
 
         return products;
@@ -119,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (products.getContent().size() == 0) {
             log.error("No products found for artist: " + artist + "!");
-            throw new IllegalArgumentException("No products found for artist: " + artist + "!");
+            throw new CustomApiNotFoundException("No products found for artist: " + artist + "!");
         }
         return products;
     }
@@ -130,7 +132,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (products.getContent().size() == 0) {
             log.error("No products found for " + name + "!");
-            throw new IllegalArgumentException("No products found for " + name + "!");
+            throw new CustomApiNotFoundException("No products found for " + name + "!");
         }
 
         return products;
@@ -142,7 +144,7 @@ public class ProductServiceImpl implements ProductService {
 
         if (rangedPricedProducts.getContent().size() == 0) {
             log.error("No products found in this price range!");
-            throw new IllegalArgumentException("No products found in this price range!");
+            throw new CustomApiNotFoundException("No products found in this price range!");
         }
 
         return rangedPricedProducts;
@@ -153,7 +155,7 @@ public class ProductServiceImpl implements ProductService {
         Product mostExpensiveProductInTheCatalogue = productRepository.getMostExpensiveProductInTheCatalogue();
 
         if (mostExpensiveProductInTheCatalogue == null) {
-            throw new IllegalStateException("No products in Database!");
+            throw new CustomApiNotFoundException("No products in Database!");
         }
         return mostExpensiveProductInTheCatalogue;
     }

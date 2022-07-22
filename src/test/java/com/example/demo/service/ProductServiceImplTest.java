@@ -1,6 +1,8 @@
 package com.example.demo.service;
 
 import com.example.demo.dataloader.DataLoader;
+import com.example.demo.error.exceptions.CustomApiNotFoundException;
+import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductCategory;
 import com.example.demo.repository.ProductRepository;
@@ -77,7 +79,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException if product was not found")
+    @DisplayName("Should throw CustomApiNotFoundException if product was not found")
     void productNotFoundById() {
         // given
         Long id = 128L;
@@ -87,7 +89,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.getProductById(id))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("Product with id " + id + " was not found!");
     }
 
@@ -157,19 +159,19 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw an Illegal Argument Exception when updating the product")
+    @DisplayName("Should throw an CustomApiNotFoundException when updating the product")
     void updateProductWithIdException() {
         // given
         Product product = new Product(); // no id it will throw an exception
 
         // then
         assertThatThrownBy(() -> productService.updateProduct(product))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("Cannot update product! Product with id " + product.getId() + " was not found!");
     }
 
     @Test
-    @DisplayName("Should throw an Illegal Argument Exception when updating the product")
+    @DisplayName("Should throw an SkuCannotBeUpdatedException when updating the product")
     void updateProductWithSkuException() {
         // given
         Product product = new Product();
@@ -184,8 +186,9 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.updateProduct(product))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(SkuCannotBeUpdatedException.class)
                 .hasMessage("You cannot update sku!");
+        verify(productRepository, never()).save(any(Product.class));
     }
 
     @Test
@@ -204,14 +207,14 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw an Illegal argument exception when deleting product by provided id")
+    @DisplayName("Should throw an CustomApiNotFoundException when deleting product by provided id")
     void deleteProductByIdException() {
         // given
         Product product = new Product(); // no id it will cause an exception
 
         // then
         assertThatThrownBy(() -> productService.deleteProductById(product.getId()))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("Cannot delete! Product with " +
                         product.getId() + " was not found!");
     }
@@ -237,7 +240,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException when trying to find the products from a given category")
+    @DisplayName("Should throw CustomApiNotFoundException when trying to find the products from a given category")
     void findByCategoryIdException() {
         // given
         Long categoryId = 22L;
@@ -252,7 +255,7 @@ public class ProductServiceImplTest {
         // then
         assertThatThrownBy(
                 () -> productService.findByCategoryId(categoryId, pageable))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("No such category found!");
     }
 
@@ -277,7 +280,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException when trying to find the products by artist name")
+    @DisplayName("Should throw CustomApiNotFoundException when trying to find the products by artist name")
     void findByArtistException() {
         // given
         String artistName = "Pixies";
@@ -292,7 +295,7 @@ public class ProductServiceImplTest {
         // then
         assertThatThrownBy(
                 () -> productService.findByArtist(artistName, pageable))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("No products found for artist: " + artistName + "!");
     }
 
@@ -319,7 +322,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw an IllegalArgumentException when searching for products by name " +
+    @DisplayName("Should throw an CustomApiNotFoundException when searching for products by name " +
             "using given input string")
     void findByNameContainingIgnoreCaseException() {
         // given
@@ -335,7 +338,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.findByNameContainingIgnoreCase(input, pageable))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("No products found for " + input + "!");
     }
 
@@ -369,7 +372,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should through an IllegalStateException if there is no product found")
+    @DisplayName("Should through an CustomApiNotFoundException if there is no product found")
     void getRangedPricedProductsException() {
         // given
         BigDecimal low = new BigDecimal("40.00");
@@ -388,7 +391,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.getRangedPricedProducts(low, high, pageable))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("No products found in this price range!");
     }
 
@@ -408,7 +411,7 @@ public class ProductServiceImplTest {
     }
 
     @Test
-    @DisplayName("Should throw an IllegalStateException when trying to " +
+    @DisplayName("Should throw an CustomApiNotFoundException when trying to " +
             "find the most expensive product in the catalogue")
     void getMostExpensiveProductInTheCatalogueException() {
 
@@ -417,7 +420,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.getMostExpensiveProductInTheCatalogue())
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(CustomApiNotFoundException.class)
                 .hasMessage("No products in Database!");
     }
 }
