@@ -68,18 +68,20 @@ public class ProductServiceImpl implements ProductService {
         }
 
         // default sku value
-        String nextSku = product.getCategory().getName() + "-000001";
+        if(product.getSku() == null && product.getId() == null) {
+            String nextSku = product.getCategory().getName() + "-000001";
 
-        // check if there are already products in this category in DB
-        Optional<Product> lastSaved = productRepository
-                .findTopByCategoryOrderByIdDesc(product.getCategory());
+            // check if there are already products in this category in DB
+            Optional<Product> lastSaved = productRepository
+                    .findTopByCategoryOrderByIdDesc(product.getCategory());
 
-        // if there are products in the same category in DB call function to get new sku
-        if (lastSaved.isPresent()) {
-            nextSku = getNextSku(product, lastSaved.get());
+            // if there are products in the same category in DB call function to get new sku
+            if (lastSaved.isPresent()) {
+                nextSku = getNextSku(product, lastSaved.get());
+            }
+
+            product.setSku(nextSku);
         }
-
-        product.setSku(nextSku);
 
         return productRepository.save(product);
     }

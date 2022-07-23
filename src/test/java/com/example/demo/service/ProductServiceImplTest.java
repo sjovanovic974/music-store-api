@@ -6,6 +6,8 @@ import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
 import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductCategory;
+import com.example.demo.repository.ArtistRepository;
+import com.example.demo.repository.ProductCategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,6 +36,12 @@ public class ProductServiceImplTest {
 
     @Mock
     private ProductRepository productRepository;
+
+    @Mock
+    private ProductCategoryRepository productCategoryRepository;
+
+    @Mock
+    private ArtistRepository artistRepository;
 
     @InjectMocks
     private ProductServiceImpl productService;
@@ -237,27 +245,41 @@ public class ProductServiceImplTest {
                 .hasMessage("Product with id " + id + " was not found!");
     }
 
-//    @Test
-//    @Disabled
-//    @DisplayName("Should save product to DB")
-//    void saveProduct() {
-//        // given
-//        ProductCategory cd = new ProductCategory();
-//        cd.setName(ProductCategory.CategoryName.CD);
-//
-//        Product product = new Product();
-//        product.setName("Arise");
-//        product.setCategory(cd);
-//
-//        // when
-//        when(productRepository.save(any(Product.class))).thenReturn(product);
-//        Product returnedProduct = productService.saveProduct(product);
-//
-//        // then
-//        verify(productRepository).save(productCaptor.capture());
-//        Product capturedProduct = productCaptor.getValue();
-//        assertThat(returnedProduct.getName()).isEqualTo(capturedProduct.getName());
-//    }
+    @Test
+    @DisplayName("Should save product to DB")
+    void saveProduct() {
+        // given
+        ProductCategory cd = ProductCategory.builder()
+                .id(11L)
+                .name(ProductCategory.CategoryName.CD)
+                .build();
+
+        Artist band = Artist.builder()
+                .id(1L)
+                .name("Sepultura")
+                .build();
+
+        Product product = Product.builder()
+                .sku("CD-000121")
+                .name("Arise")
+                .category(cd)
+                .artist(band)
+                .build();
+
+        // when
+        when(productCategoryRepository.findById(anyLong())).thenReturn(Optional.of(cd));
+        when(artistRepository.findById(anyLong())).thenReturn(Optional.of(band));
+        when(productRepository.save(any(Product.class))).thenReturn(product);
+        Product returnedProduct = productService.saveProduct(product);
+
+        // then
+        verify(artistRepository).findById(anyLong());
+        verify(productCategoryRepository).findById(anyLong());
+
+        verify(productRepository).save(productCaptor.capture());
+        Product capturedProduct = productCaptor.getValue();
+        assertThat(returnedProduct.getName()).isEqualTo(capturedProduct.getName());
+    }
 
     @Test
     @DisplayName("Should generate proper sku value")
