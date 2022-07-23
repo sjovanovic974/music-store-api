@@ -51,6 +51,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product saveProduct(Product product) {
 
+        if (product.getId() != null) {
+            throw new IllegalStateException("Field id is not allowed!");
+        }
+
+        if (product.getSku() != null) {
+            throw new IllegalStateException("Field sku is not allowed!");
+        }
+
         // check if category already exist
         Optional<ProductCategory> category =
                 productCategoryRepository.findById(product.getCategory().getId());
@@ -61,34 +69,28 @@ public class ProductServiceImpl implements ProductService {
 
         // check if artist already exist
         Optional<Artist> artist = artistRepository.findById(product.getArtist().getId());
-        if (artist.isPresent()) {
-            product.setArtist(artist.get());
-        } else {
+        artist.ifPresentOrElse(product::setArtist, () -> {
             throw new CustomApiNotFoundException("No such artist in DB!");
-        }
+        });
 
         // default sku value
-        if(product.getSku() == null && product.getId() == null) {
-            String nextSku = product.getCategory().getName() + "-000001";
+        String nextSku = product.getCategory().getName() + "-000001";
 
-            // check if there are already products in this category in DB
-            Optional<Product> lastSaved = productRepository
-                    .findTopByCategoryOrderByIdDesc(product.getCategory());
+        // check if there are already products in this category in DB
+        Optional<Product> lastSaved = productRepository
+                .findTopByCategoryOrderByIdDesc(product.getCategory());
 
-            // if there are products in the same category in DB call function to get new sku
-            if (lastSaved.isPresent()) {
-                nextSku = getNextSku(product, lastSaved.get());
-            }
-
-            product.setSku(nextSku);
+        // if there are products in the same category in DB call function to get new sku
+        if (lastSaved.isPresent()) {
+            nextSku = getNextSku(product, lastSaved.get());
         }
+
+        product.setSku(nextSku);
 
         return productRepository.save(product);
     }
 
     public String getNextSku(Product product, Product lastSaved) {
-
-        String nextSku = "";
 
         String categoryName = product.getCategory().getName().toString();
 
@@ -96,11 +98,9 @@ public class ProductServiceImpl implements ProductService {
         String currentSkuNumber = lastSaved.getSku().substring(categoryName.length() + 1);
 
         // Adding 1 to the last saved sku number, i.e. simulating increment
-        Integer number = (Integer.parseInt(currentSkuNumber)) + 1;
+        Long number = (Long.parseLong(currentSkuNumber)) + 1;
 
-        nextSku = categoryName + "-" + String.format("%06d", number);
-
-        return nextSku;
+        return categoryName + "-" + String.format("%06d", number);
     }
 
     @Override

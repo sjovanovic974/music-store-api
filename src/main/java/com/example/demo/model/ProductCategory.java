@@ -1,6 +1,5 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -9,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -24,6 +24,7 @@ public class ProductCategory {
     @Column(name = "id", updatable = false)
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
     private CategoryName name;

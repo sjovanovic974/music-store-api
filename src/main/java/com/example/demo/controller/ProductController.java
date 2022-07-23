@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.math.BigDecimal;
 
 @RestController
@@ -30,12 +31,12 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product saveProduct(@RequestBody Product product) {
+    public Product saveProduct(@Valid @RequestBody Product product) {
         return productService.saveProduct(product);
     }
 
     @PutMapping
-    public Product updateProduct(@RequestBody Product product) {
+    public Product updateProduct(@Valid @RequestBody Product product) {
         return productService.updateProduct(product);
     }
 

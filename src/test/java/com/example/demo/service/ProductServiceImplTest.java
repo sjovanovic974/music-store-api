@@ -260,7 +260,6 @@ public class ProductServiceImplTest {
                 .build();
 
         Product product = Product.builder()
-                .sku("CD-000121")
                 .name("Arise")
                 .category(cd)
                 .artist(band)
