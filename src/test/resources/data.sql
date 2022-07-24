@@ -1,8 +1,8 @@
 
-insert into artists(name, country)
-    values ('Iron Maiden', 'UK'),
-           ('Metallica', 'USA'),
-           ('Partibrejkers', 'Serbia');
+insert into artists(name)
+    values ('Iron Maiden'),
+           ('Metallica'),
+           ('Partibrejkers');
 
 
 insert into product_categories(name)

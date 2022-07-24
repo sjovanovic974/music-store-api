@@ -1,7 +1,7 @@
 package com.example.demo.error;
 
 import com.example.demo.error.exceptions.CustomApiNotFoundException;
-import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
+import com.example.demo.error.exceptions.CustomBadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,9 +31,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(value = {SkuCannotBeUpdatedException.class})
-    public ResponseEntity<ErrorResponseMessage> handleSkuCannotBeUpdatedException
-            (SkuCannotBeUpdatedException exception, HttpServletRequest httpServletRequest) {
+    @ExceptionHandler(value = {CustomBadRequestException.class})
+    public ResponseEntity<ErrorResponseMessage> handleCustomBadRequestException
+            (CustomBadRequestException exception, HttpServletRequest httpServletRequest) {
 
         ErrorResponseMessage error = new ErrorResponseMessage(
                 HttpStatus.BAD_REQUEST.value(),

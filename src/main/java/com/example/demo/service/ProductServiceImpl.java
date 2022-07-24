@@ -1,7 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.error.exceptions.CustomApiNotFoundException;
-import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
+import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductCategory;
@@ -52,11 +52,11 @@ public class ProductServiceImpl implements ProductService {
     public Product saveProduct(Product product) {
 
         if (product.getId() != null) {
-            throw new IllegalStateException("Field id is not allowed!");
+            throw new CustomBadRequestException("Field id is not allowed!");
         }
 
         if (product.getSku() != null) {
-            throw new IllegalStateException("Field sku is not allowed!");
+            throw new CustomBadRequestException("Field sku is not allowed!");
         }
 
         // check if category already exist
@@ -64,13 +64,13 @@ public class ProductServiceImpl implements ProductService {
                 productCategoryRepository.findById(product.getCategory().getId());
 
         category.ifPresentOrElse(product::setCategory, () -> {
-            throw new CustomApiNotFoundException("You must use valid category name!");
+            throw new CustomBadRequestException("You must use valid category name!");
         });
 
         // check if artist already exist
         Optional<Artist> artist = artistRepository.findById(product.getArtist().getId());
         artist.ifPresentOrElse(product::setArtist, () -> {
-            throw new CustomApiNotFoundException("No such artist in DB!");
+            throw new CustomBadRequestException("No such artist in DB!");
         });
 
         // default sku value
@@ -108,12 +108,12 @@ public class ProductServiceImpl implements ProductService {
         Product productFromDB = productRepository.findById(product.getId())
                 .orElseThrow(() -> {
                     log.error("Cannot update product! Product with id " + product.getId() + " was not found!");
-                    return new CustomApiNotFoundException("Cannot update product! Product with id "
+                    return new CustomBadRequestException("Cannot update product! Product with id "
                             + product.getId() + " was not found!");
                 });
 
         if (!productFromDB.getSku().equals(product.getSku())) {
-            throw new SkuCannotBeUpdatedException("You cannot update sku!");
+            throw new CustomBadRequestException("You cannot update sku!");
         }
         return productRepository.save(product);
     }
@@ -123,7 +123,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cannot delete! Product with " + id + " was not found!");
-                    return new CustomApiNotFoundException("Cannot delete! Product with " +
+                    return new CustomBadRequestException("Cannot delete! Product with " +
                             id + " was not found!");
                 });
 

@@ -4,6 +4,7 @@ import com.example.demo.model.Product;
 import com.example.demo.service.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -31,6 +32,7 @@ public class ProductController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Product saveProduct(@Valid @RequestBody Product product) {
         return productService.saveProduct(product);
     }

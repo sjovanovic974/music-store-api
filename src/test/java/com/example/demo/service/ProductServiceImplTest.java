@@ -1,8 +1,7 @@
 package com.example.demo.service;
 
-import com.example.demo.dataloader.DataLoader;
 import com.example.demo.error.exceptions.CustomApiNotFoundException;
-import com.example.demo.error.exceptions.SkuCannotBeUpdatedException;
+import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductCategory;
@@ -332,7 +331,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.updateProduct(product))
-                .isInstanceOf(CustomApiNotFoundException.class)
+                .isInstanceOf(CustomBadRequestException.class)
                 .hasMessage("Cannot update product! Product with id " + product.getId() + " was not found!");
     }
 
@@ -352,7 +351,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.updateProduct(product))
-                .isInstanceOf(SkuCannotBeUpdatedException.class)
+                .isInstanceOf(CustomBadRequestException.class)
                 .hasMessage("You cannot update sku!");
         verify(productRepository, never()).save(any(Product.class));
     }
@@ -380,7 +379,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThatThrownBy(() -> productService.deleteProductById(product.getId()))
-                .isInstanceOf(CustomApiNotFoundException.class)
+                .isInstanceOf(CustomBadRequestException.class)
                 .hasMessage("Cannot delete! Product with " +
                         product.getId() + " was not found!");
     }
