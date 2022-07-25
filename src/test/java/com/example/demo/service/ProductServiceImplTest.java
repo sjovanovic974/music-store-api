@@ -10,10 +10,7 @@ import com.example.demo.repository.ProductCategoryRepository;
 import com.example.demo.repository.ProductRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -201,7 +198,7 @@ public class ProductServiceImplTest {
         Page<Product> productsPage = new PageImpl<>(products, pageable, products.size());
 
         // when
-        when(productRepository.findAll(pageable)).thenReturn(productsPage);
+        when(productRepository.findAll(Mockito.any(Pageable.class))).thenReturn(productsPage);
         Page<Product> returnedProducts = productService.getProducts(pageable);
 
         // then
@@ -273,7 +270,6 @@ public class ProductServiceImplTest {
         // then
         verify(artistRepository).findById(anyLong());
         verify(productCategoryRepository).findById(anyLong());
-
         verify(productRepository).save(productCaptor.capture());
         Product capturedProduct = productCaptor.getValue();
         assertThat(returnedProduct.getName()).isEqualTo(capturedProduct.getName());

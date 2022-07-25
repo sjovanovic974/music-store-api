@@ -67,12 +67,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(value = {Exception.class})
-    public ResponseEntity<ErrorResponseMessage> handleException(Exception exception) {
+    public ResponseEntity<ErrorResponseMessage> handleException(
+            Exception exception, HttpServletRequest httpServletRequest) {
 
         ErrorResponseMessage error = new ErrorResponseMessage(
                 HttpStatus.BAD_REQUEST.value(),
                 exception.getMessage(),
-                null);
+                httpServletRequest.getServletPath());
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }

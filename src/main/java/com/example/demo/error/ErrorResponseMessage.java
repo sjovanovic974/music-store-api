@@ -13,7 +13,6 @@ public class ErrorResponseMessage {
     private final String message;
     private final String path;
     private final String timeStamp;
-
     private Map<String, String> validationErrors;
 
     public ErrorResponseMessage(int status, String message, String path) {

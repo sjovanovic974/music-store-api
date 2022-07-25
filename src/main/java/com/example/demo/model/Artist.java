@@ -25,7 +25,7 @@ public class Artist {
     private Long id;
 
     @NotNull
-    @Size(min=2, max=50)
+    @Size(min=1, max=50)
     @Column(name = "name", nullable = false)
     private String name;
 

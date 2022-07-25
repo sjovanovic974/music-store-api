@@ -64,7 +64,7 @@ public class ProductServiceImpl implements ProductService {
                 productCategoryRepository.findById(product.getCategory().getId());
 
         category.ifPresentOrElse(product::setCategory, () -> {
-            throw new CustomBadRequestException("You must use valid category name!");
+            throw new CustomBadRequestException("You must use valid category id!");
         });
 
         // check if artist already exist
