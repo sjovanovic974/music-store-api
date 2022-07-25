@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ProductDTO {
+public class UpdateProductDTO {
 
     @NotNull
     @Size(min = 1, max = 50)
@@ -42,11 +42,4 @@ public class ProductDTO {
     @Min(0)
     @Max(100)
     private int unitsInStock;
-
-    @NotNull
-    @Size(min=1, max=50)
-    private String artist;
-
-    @NotNull
-    private String category;
 }

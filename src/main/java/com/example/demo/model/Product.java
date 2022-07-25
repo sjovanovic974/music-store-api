@@ -6,7 +6,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -29,33 +28,21 @@ public class Product {
     @Column(name = "sku", nullable = false, updatable = false)
     private String sku;
 
-    @NotNull
-    @Size(min = 1, max = 50)
     @Column(name = "name", nullable = false)
     private String name;
 
     @Column(name = "description")
-    @Size(min = 0, max = 350)
     private String description;
 
-    @NotNull
-    @Min(1)
-    @Max(1000)
     @Column(name = "unit_price", nullable = false)
     private BigDecimal unitPrice;
 
-    @NotNull
-    @Size(min = 9, max = 50)
     @Column(name = "image_url", nullable = false)
     private String imageUrl;
 
-    @NotNull
     @Column(name = "active", nullable = false)
     private boolean active;
 
-    @NotNull
-    @Min(0)
-    @Max(100)
     @Column(name = "units_in_stock", nullable = false)
     private int unitsInStock;
 

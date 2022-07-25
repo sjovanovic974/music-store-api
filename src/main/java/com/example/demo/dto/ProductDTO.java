@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PostProductDTO {
+public class ProductDTO {
 
     @NotNull
     @Size(min = 1, max = 50)

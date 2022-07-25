@@ -30,19 +30,19 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         ProductCategory cd = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.CD)
+                .name("CD")
                 .build();
 
         ProductCategory lp = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.LP)
+                .name("LP")
                 .build();
 
         ProductCategory dvd = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.DVD)
+                .name("DVD")
                 .build();
 
         ProductCategory book = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.BOOK)
+                .name("BOOK")
                 .build();
 
         Artist iron = Artist.builder()

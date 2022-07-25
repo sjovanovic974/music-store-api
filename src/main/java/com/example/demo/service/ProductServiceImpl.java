@@ -51,24 +51,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product saveProduct(Product product) {
 
-        if (product.getId() != null) {
-            throw new CustomBadRequestException("Field id is not allowed!");
-        }
-
-        if (product.getSku() != null) {
-            throw new CustomBadRequestException("Field sku is not allowed!");
-        }
-
         // check if category already exist
         Optional<ProductCategory> category =
-                productCategoryRepository.findById(product.getCategory().getId());
+                productCategoryRepository.findByName(product.getCategory().getName());
 
         category.ifPresentOrElse(product::setCategory, () -> {
-            throw new CustomBadRequestException("You must use valid category id!");
+            throw new CustomBadRequestException("You must use valid category!");
         });
 
         // check if artist already exist
-        Optional<Artist> artist = artistRepository.findById(product.getArtist().getId());
+        Optional<Artist> artist = artistRepository.findByName(product.getArtist().getName());
         artist.ifPresentOrElse(product::setArtist, () -> {
             throw new CustomBadRequestException("No such artist in DB!");
         });
@@ -104,17 +96,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(Product product) {
-        Product productFromDB = productRepository.findById(product.getId())
+    public Product updateProduct(Product product, Long id) {
+        productRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.error("Cannot update product! Product with id " + product.getId() + " was not found!");
+                    log.error("Cannot update product! Product with id " + id + " was not found!");
                     return new CustomBadRequestException("Cannot update product! Product with id "
-                            + product.getId() + " was not found!");
+                            + id + " was not found!");
                 });
 
-        if (!productFromDB.getSku().equals(product.getSku())) {
-            throw new CustomBadRequestException("You cannot update sku!");
-        }
         return productRepository.save(product);
     }
 

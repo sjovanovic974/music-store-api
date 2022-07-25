@@ -12,7 +12,9 @@ import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
-@Table(name = "artists")
+@Table(name = "artists", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_band_name", columnNames = "name")
+})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

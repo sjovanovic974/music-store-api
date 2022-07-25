@@ -12,7 +12,9 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
-@Table(name = "product_categories")
+@Table(name = "product_categories", uniqueConstraints = {
+        @UniqueConstraint(name = "UK_category_name", columnNames = "name")
+})
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,21 +26,12 @@ public class ProductCategory {
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
     @Column(name = "name", nullable = false)
-    private CategoryName name;
+    private String name;
 
     @JsonIgnore
     @OneToMany(mappedBy = "category")
     List<Product> products;
-
-    public static enum CategoryName {
-        @JsonProperty("CD") CD,
-        @JsonProperty("LP") LP,
-        @JsonProperty("DVD") DVD,
-        @JsonProperty("BOOK") BOOK
-    }
 }
 
 

@@ -50,19 +50,19 @@ public class ProductServiceImplTest {
     @BeforeEach
     public void setUp() {
         ProductCategory cd = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.CD)
+                .name("CD")
                 .build();
 
         ProductCategory lp = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.LP)
+                .name("LP")
                 .build();
 
         ProductCategory dvd = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.DVD)
+                .name("DVD")
                 .build();
 
         ProductCategory book = ProductCategory.builder()
-                .name(ProductCategory.CategoryName.BOOK)
+                .name("BOOK")
                 .build();
 
         Artist iron = Artist.builder()
@@ -78,6 +78,7 @@ public class ProductServiceImplTest {
                 .build();
 
         Product master = Product.builder()
+                .id(1L)
                 .name("Master of Puppets")
                 .description("Third album")
                 .active(true)
@@ -246,12 +247,10 @@ public class ProductServiceImplTest {
     void saveProduct() {
         // given
         ProductCategory cd = ProductCategory.builder()
-                .id(11L)
-                .name(ProductCategory.CategoryName.CD)
+                .name("CD")
                 .build();
 
         Artist band = Artist.builder()
-                .id(1L)
                 .name("Sepultura")
                 .build();
 
@@ -262,14 +261,14 @@ public class ProductServiceImplTest {
                 .build();
 
         // when
-        when(productCategoryRepository.findById(anyLong())).thenReturn(Optional.of(cd));
-        when(artistRepository.findById(anyLong())).thenReturn(Optional.of(band));
+        when(productCategoryRepository.findByName(any(String.class))).thenReturn(Optional.of(cd));
+        when(artistRepository.findByName(any(String.class))).thenReturn(Optional.of(band));
         when(productRepository.save(any(Product.class))).thenReturn(product);
         Product returnedProduct = productService.saveProduct(product);
 
         // then
-        verify(artistRepository).findById(anyLong());
-        verify(productCategoryRepository).findById(anyLong());
+        verify(artistRepository).findByName(any(String.class));
+        verify(productCategoryRepository).findByName(any(String.class));
         verify(productRepository).save(productCaptor.capture());
         Product capturedProduct = productCaptor.getValue();
         assertThat(returnedProduct.getName()).isEqualTo(capturedProduct.getName());
@@ -280,7 +279,7 @@ public class ProductServiceImplTest {
     void getNextSku() {
         // given
         ProductCategory dvd = new ProductCategory();
-        dvd.setName(ProductCategory.CategoryName.DVD);
+        dvd.setName("DVD");
 
         Product lastSavedInDB = new Product();
         lastSavedInDB.setCategory(dvd);
@@ -309,7 +308,7 @@ public class ProductServiceImplTest {
         // when
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenReturn(product);
-        Product updatedProduct = productService.updateProduct(product);
+        Product updatedProduct = productService.updateProduct(product, product.getId());
 
         // then
         verify(productRepository).findById(anyLong());
@@ -326,30 +325,9 @@ public class ProductServiceImplTest {
         Product product = new Product(); // no id it will throw an exception
 
         // then
-        assertThatThrownBy(() -> productService.updateProduct(product))
+        assertThatThrownBy(() -> productService.updateProduct(product, product.getId()))
                 .isInstanceOf(CustomBadRequestException.class)
                 .hasMessage("Cannot update product! Product with id " + product.getId() + " was not found!");
-    }
-
-    @Test
-    @DisplayName("Should throw an SkuCannotBeUpdatedException when updating the product")
-    void updateProductWithSkuException() {
-        // given
-        Product product = new Product();
-        product.setId(1L);
-        product.setSku("CD-000001");
-
-        Product productUpdated = new Product();
-        productUpdated.setSku("CD-000002");
-
-        // when
-        when(productRepository.findById(anyLong())).thenReturn(Optional.of(productUpdated));
-
-        // then
-        assertThatThrownBy(() -> productService.updateProduct(product))
-                .isInstanceOf(CustomBadRequestException.class)
-                .hasMessage("You cannot update sku!");
-        verify(productRepository, never()).save(any(Product.class));
     }
 
     @Test
@@ -387,7 +365,7 @@ public class ProductServiceImplTest {
         Long categoryId = 2L;
         ProductCategory lp = new ProductCategory();
         lp.setId(2L);
-        lp.setName(ProductCategory.CategoryName.LP);
+        lp.setName("LP");
 
         products.get(0).setCategory(lp);
         List<Product> filteredProducts = products.stream()

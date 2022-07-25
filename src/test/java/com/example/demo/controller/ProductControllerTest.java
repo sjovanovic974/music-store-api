@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.ProductDTO;
 import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
@@ -25,14 +26,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.BDDAssumptions.given;
 import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -57,22 +54,22 @@ public class ProductControllerTest {
     void setUp() {
         ProductCategory cd = ProductCategory.builder()
                 .id(1L)
-                .name(ProductCategory.CategoryName.CD)
+                .name("CD")
                 .build();
 
         ProductCategory lp = ProductCategory.builder()
                 .id(2L)
-                .name(ProductCategory.CategoryName.LP)
+                .name("LP")
                 .build();
 
         ProductCategory dvd = ProductCategory.builder()
                 .id(3L)
-                .name(ProductCategory.CategoryName.DVD)
+                .name("DVD")
                 .build();
 
         ProductCategory book = ProductCategory.builder()
                 .id(4L)
-                .name(ProductCategory.CategoryName.BOOK)
+                .name("BOOK")
                 .build();
 
         Artist iron = Artist.builder()
@@ -258,30 +255,38 @@ public class ProductControllerTest {
     @DisplayName("Should save given product")
     void saveProduct() throws Exception {
         // given
-        Product master = products.get(0);
+        ProductDTO dtoProduct = ProductDTO.builder()
+                .name("Master of Puppets")
+                .active(true)
+                .artist("Metallica")
+                .category("CD")
+                .imageUrl("www.google.com")
+                .unitsInStock(5)
+                .unitPrice(new BigDecimal("25.00"))
+                .build();
+        Product product = products.get(0);
 
         // when
-        when(productService.saveProduct(Mockito.any(Product.class))).thenReturn(master);
+        when(productService.saveProduct(Mockito.any(Product.class))).thenReturn(product);
 
         // then
         mockMvc.perform(post("/api/products")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(master)))
+                        .content(objectMapper.writeValueAsString(dtoProduct)))
                 .andExpect(status().isCreated())
                 .andDo(print())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value("Master of Puppets"))
-                .andExpect(jsonPath("$.category.name").value("CD"))
-                .andExpect(jsonPath("$.active").value("true"))
-                .andExpect(jsonPath("$.unitsInStock").value("3"))
-                .andExpect(jsonPath("$.sku").value("CD-000001"));
+                .andExpect(jsonPath("$.name").value(product.getName()))
+                .andExpect(jsonPath("$.category.name").value(product.getCategory().getName()))
+                .andExpect(jsonPath("$.active").value(product.isActive()))
+                .andExpect(jsonPath("$.unitsInStock").value(product.getUnitsInStock()));
     }
 
     @Test
     @DisplayName("Should return a bad request")
     void saveProductBadRequest() throws Exception {
         // given
-        Product product = new Product();
+        ProductDTO product = new ProductDTO();
 
         // then
         mockMvc.perform(post("/api/products")
@@ -296,24 +301,28 @@ public class ProductControllerTest {
     void updateProduct() throws Exception {
         // given
         Product master = products.get(0);
-        master.setUnitPrice(new BigDecimal("39.99"));
+
+        ProductDTO dtoProduct = ProductDTO.builder()
+                .name(master.getName())
+                .description(master.getDescription())
+                .active(master.isActive())
+                .unitsInStock(master.getUnitsInStock())
+                .unitPrice(master.getUnitPrice())
+                .imageUrl(master.getImageUrl())
+                .build();
 
         // when
-        when(productService.updateProduct(Mockito.any(Product.class))).thenReturn(master);
+        when(productService.getProductById(anyLong())).thenReturn(master);
+        when(productService.updateProduct(Mockito.any(Product.class), anyLong())).thenReturn(master);
 
         // then
-        mockMvc.perform(put("/api/products")
+        mockMvc.perform(patch("/api/products/{id}", 1L)
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(master)))
+                        .content(objectMapper.writeValueAsString(dtoProduct)))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value("Master of Puppets"))
-                .andExpect(jsonPath("$.category.name").value("CD"))
-                .andExpect(jsonPath("$.unitPrice").value("39.99"))
-                .andExpect(jsonPath("$.active").value("true"))
-                .andExpect(jsonPath("$.unitsInStock").value("3"))
-                .andExpect(jsonPath("$.sku").value("CD-000001"));
+                .andExpect(jsonPath("$.sku").value(master.getSku()));
     }
 
     @Test
