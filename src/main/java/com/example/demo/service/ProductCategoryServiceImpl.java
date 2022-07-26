@@ -5,6 +5,7 @@ import com.example.demo.repository.ProductCategoryRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,6 +20,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Override
     public ProductCategory saveProductCategory(ProductCategory productCategory) {
         return productCategoryRepository.save(productCategory);
+    }
+
+    @Override
+    public Optional<ProductCategory> findByName(String categoryName) {
+        return productCategoryRepository.findByNameIgnoreCase(categoryName);
     }
 
     @Override

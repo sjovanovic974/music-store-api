@@ -50,30 +50,37 @@ public class ProductServiceImplTest {
     @BeforeEach
     public void setUp() {
         ProductCategory cd = ProductCategory.builder()
+                .id(1L)
                 .name("CD")
                 .build();
 
         ProductCategory lp = ProductCategory.builder()
+                .id(2L)
                 .name("LP")
                 .build();
 
         ProductCategory dvd = ProductCategory.builder()
+                .id(3L)
                 .name("DVD")
                 .build();
 
         ProductCategory book = ProductCategory.builder()
+                .id(4L)
                 .name("BOOK")
                 .build();
 
         Artist iron = Artist.builder()
+                .id(1L)
                 .name("Iron Maiden")
                 .build();
 
         Artist metallica = Artist.builder()
+                .id(2L)
                 .name("Metallica")
                 .build();
 
         Artist partibrejkers = Artist.builder()
+                .id(3L)
                 .name("Partibrejkers")
                 .build();
 
@@ -261,14 +268,14 @@ public class ProductServiceImplTest {
                 .build();
 
         // when
-        when(productCategoryRepository.findByName(any(String.class))).thenReturn(Optional.of(cd));
+        when(productCategoryRepository.findByNameIgnoreCase(any(String.class))).thenReturn(Optional.of(cd));
         when(artistRepository.findByName(any(String.class))).thenReturn(Optional.of(band));
         when(productRepository.save(any(Product.class))).thenReturn(product);
         Product returnedProduct = productService.saveProduct(product);
 
         // then
         verify(artistRepository).findByName(any(String.class));
-        verify(productCategoryRepository).findByName(any(String.class));
+        verify(productCategoryRepository).findByNameIgnoreCase(any(String.class));
         verify(productRepository).save(productCaptor.capture());
         Product capturedProduct = productCaptor.getValue();
         assertThat(returnedProduct.getName()).isEqualTo(capturedProduct.getName());
@@ -300,12 +307,14 @@ public class ProductServiceImplTest {
     @DisplayName("Should update the product")
     void updateProduct() {
         // given
-        Product product = new Product();
-        product.setId(3L);
-        product.setSku("CD-000001");
+        Product product = products.get(0);
         product.setUnitPrice(new BigDecimal("20.00"));
 
         // when
+        when(productCategoryRepository.findByNameIgnoreCase(anyString()))
+                .thenReturn(Optional.ofNullable(product.getCategory()));
+        when(artistRepository.findByName(anyString()))
+                .thenReturn(Optional.ofNullable(product.getArtist()));
         when(productRepository.findById(anyLong())).thenReturn(Optional.of(product));
         when(productRepository.save(any(Product.class))).thenReturn(product);
         Product updatedProduct = productService.updateProduct(product, product.getId());
@@ -322,7 +331,8 @@ public class ProductServiceImplTest {
     @DisplayName("Should throw an CustomApiNotFoundException when updating the product")
     void updateProductWithIdException() {
         // given
-        Product product = new Product(); // no id it will throw an exception
+        Product product = products.get(0);
+        product.setId(null);  // no id it will throw an exception
 
         // then
         assertThatThrownBy(() -> productService.updateProduct(product, product.getId()))

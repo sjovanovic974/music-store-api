@@ -1,6 +1,5 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ArtistDTO;
 import com.example.demo.model.Artist;
 import com.example.demo.service.ArtistService;
 import org.springframework.http.HttpStatus;
@@ -20,7 +19,7 @@ public class ArtistController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Artist saveArtist(@Valid @RequestBody ArtistDTO artist) {
+    public Artist saveArtist(@Valid @RequestBody Artist artist) {
         Artist artistEntity = Artist.builder()
                 .name(artist.getName())
                 .build();

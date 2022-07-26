@@ -5,10 +5,11 @@ import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.model.Artist;
 import com.example.demo.model.Product;
 import com.example.demo.model.ProductCategory;
+import com.example.demo.service.ArtistService;
+import com.example.demo.service.ProductCategoryService;
 import com.example.demo.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -21,10 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultHandler;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -41,6 +44,12 @@ public class ProductControllerTest {
 
     @MockBean
     private ProductService productService;
+
+    @MockBean
+    private ProductCategoryService productCategoryService;
+
+    @MockBean
+    private ArtistService artistService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -214,8 +223,9 @@ public class ProductControllerTest {
         // given
         Pageable pageable = PageRequest.of(0, 5);
         Page<Product> productsPage = new PageImpl<>(products, pageable, products.size());
+        Page<ProductDTO> dtoPage = productsPage.map(ProductDTO::convertToResponseProductDTO);
 
-        int size = productsPage.getContent().size();
+        int size = dtoPage.getContent().size();
 
         // when
         when(productService.getProducts(Mockito.any(Pageable.class)))
@@ -235,6 +245,7 @@ public class ProductControllerTest {
     void getProductById() throws Exception {
         // given
         Product master = products.get(0);
+        ProductDTO dtoProduct = ProductDTO.convertToResponseProductDTO(master);
 
         // when
         when(productService.getProductById(anyLong())).thenReturn(master);
@@ -244,27 +255,18 @@ public class ProductControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Master of Puppets"))
-                .andExpect(jsonPath("$.category.name").value("CD"))
-                .andExpect(jsonPath("$.artist.name").value("Metallica"));
-
+                .andExpect(jsonPath("$.id").value(dtoProduct.getId()))
+                .andExpect(jsonPath("$.name").value(dtoProduct.getName()))
+                .andExpect(jsonPath("$.category").value(dtoProduct.getCategory()))
+                .andExpect(jsonPath("$.artist").value(dtoProduct.getArtist()));
     }
 
     @Test
     @DisplayName("Should save given product")
     void saveProduct() throws Exception {
         // given
-        ProductDTO dtoProduct = ProductDTO.builder()
-                .name("Master of Puppets")
-                .active(true)
-                .artist("Metallica")
-                .category("CD")
-                .imageUrl("www.google.com")
-                .unitsInStock(5)
-                .unitPrice(new BigDecimal("25.00"))
-                .build();
         Product product = products.get(0);
+        ProductDTO input = ProductDTO.convertToResponseProductDTO(product);
 
         // when
         when(productService.saveProduct(Mockito.any(Product.class))).thenReturn(product);
@@ -272,12 +274,12 @@ public class ProductControllerTest {
         // then
         mockMvc.perform(post("/api/products")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(dtoProduct)))
+                        .content(objectMapper.writeValueAsString(input)))
                 .andExpect(status().isCreated())
                 .andDo(print())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value(product.getName()))
-                .andExpect(jsonPath("$.category.name").value(product.getCategory().getName()))
+                .andExpect(jsonPath("$.category").value(product.getCategory().getName()))
                 .andExpect(jsonPath("$.active").value(product.isActive()))
                 .andExpect(jsonPath("$.unitsInStock").value(product.getUnitsInStock()));
     }
@@ -286,12 +288,15 @@ public class ProductControllerTest {
     @DisplayName("Should return a bad request")
     void saveProductBadRequest() throws Exception {
         // given
-        ProductDTO product = new ProductDTO();
+        Product product = products.get(0);
+        ProductDTO dtoProduct = ProductDTO.convertToResponseProductDTO(product);
+        Product productToBeSaved = ProductDTO.convertToProductForSave(dtoProduct);
+        productToBeSaved.setCategory(null);
 
         // then
         mockMvc.perform(post("/api/products")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(product)))
+                        .content(objectMapper.writeValueAsString(productToBeSaved)))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }
@@ -301,27 +306,17 @@ public class ProductControllerTest {
     void updateProduct() throws Exception {
         // given
         Product master = products.get(0);
-
-        ProductDTO dtoProduct = ProductDTO.builder()
-                .name(master.getName())
-                .description(master.getDescription())
-                .active(master.isActive())
-                .unitsInStock(master.getUnitsInStock())
-                .unitPrice(master.getUnitPrice())
-                .imageUrl(master.getImageUrl())
-                .build();
+        ProductDTO dtoProduct = ProductDTO.convertToResponseProductDTO(master);
 
         // when
-        when(productService.getProductById(anyLong())).thenReturn(master);
         when(productService.updateProduct(Mockito.any(Product.class), anyLong())).thenReturn(master);
 
         // then
-        mockMvc.perform(patch("/api/products/{id}", 1L)
+        mockMvc.perform(put("/api/products/{id}", master.getId())
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(dtoProduct)))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.sku").value(master.getSku()));
     }
 
@@ -360,20 +355,22 @@ public class ProductControllerTest {
                 .toList();
         Pageable pageable = PageRequest.of(0, 10);
         Page<Product> productsPage = new PageImpl<>(filteredProducts, pageable, filteredProducts.size());
+        Page<ProductDTO> dtoProducts = productsPage.map(ProductDTO::convertToResponseProductDTO);
 
-        int size = productsPage.getContent().size();
+        int size = dtoProducts.getContent().size();
 
         // when
         when(productService.findByCategoryId(anyLong(), Mockito.any(Pageable.class)))
                 .thenReturn(productsPage);
 
         // then
-        mockMvc.perform(get("/api/products/category/{categoryId}", categoryId)
+        mockMvc.perform(get("/api/products/category/id/{categoryId}", categoryId)
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content.size()", is(size)))
-                .andExpect(jsonPath("$.content[0].category.name").value("CD"))
+                .andExpect(jsonPath("$.content[0].category")
+                        .value(dtoProducts.getContent().get(0).getCategory()))
                 .andDo(print());
     }
 
@@ -387,8 +384,9 @@ public class ProductControllerTest {
                 .toList();
         Pageable pageable = PageRequest.of(0, 10);
         Page<Product> productsPage = new PageImpl<>(filteredProducts, pageable, filteredProducts.size());
+        Page<ProductDTO> dtoProducts = productsPage.map(ProductDTO::convertToResponseProductDTO);
 
-        int size = productsPage.getContent().size();
+        int size = dtoProducts.getContent().size();
 
 
         // when
@@ -401,7 +399,8 @@ public class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content.size()", is(size)))
-                .andExpect(jsonPath("$.content[0].artist.name").value(artistName))
+                .andExpect(jsonPath("$.content[0].artist")
+                        .value(dtoProducts.getContent().get(0).getArtist()))
                 .andDo(print());
     }
 
@@ -469,9 +468,11 @@ public class ProductControllerTest {
     @DisplayName("Should find the most expensive product in the catalogue")
     void getMostExpensiveProductInTheCatalogue() throws Exception {
         // given
-        Product product = new Product();
+        Product product = products.get(2);
         BigDecimal unitPrice = new BigDecimal("99.99");
         product.setUnitPrice(unitPrice);
+
+        ProductDTO dtoProduct = ProductDTO.convertToResponseProductDTO(product);
 
         // when
         when(productService.getMostExpensiveProductInTheCatalogue()).thenReturn(product);
@@ -481,7 +482,7 @@ public class ProductControllerTest {
                         .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.unitPrice").value(unitPrice))
+                .andExpect(jsonPath("$.unitPrice").value(dtoProduct.getUnitPrice()))
                 .andDo(print());
     }
 }

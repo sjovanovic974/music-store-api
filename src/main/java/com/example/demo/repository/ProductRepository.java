@@ -17,7 +17,7 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByCategoryId(Long categoryId, Pageable page);
-
+    Page<Product> findByCategoryNameIgnoreCase(String categoryName, Pageable page);
     // JPQL
     @Query("select p from Product p where p.artist.name = ?1")
     Page<Product> findByArtist(String artist, Pageable page);

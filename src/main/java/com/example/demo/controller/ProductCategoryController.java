@@ -1,9 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.CategoryDTO;
 import com.example.demo.model.ProductCategory;
 import com.example.demo.service.ProductCategoryService;
-import com.example.demo.service.ProductService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -14,12 +12,12 @@ public class ProductCategoryController {
 
     private final ProductCategoryService productCategoryService;
 
-    public ProductCategoryController(ProductService productService, ProductCategoryService productCategoryService) {
+    public ProductCategoryController(ProductCategoryService productCategoryService) {
         this.productCategoryService = productCategoryService;
     }
 
     @PostMapping
-    public ProductCategory saveProductCategory(@Valid @RequestBody CategoryDTO category) {
+    public ProductCategory saveProductCategory(@Valid @RequestBody ProductCategory category) {
         ProductCategory productCategory = ProductCategory.builder()
                 .name(category.getName())
                 .build();

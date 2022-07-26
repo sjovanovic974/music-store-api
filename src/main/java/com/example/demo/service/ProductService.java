@@ -12,6 +12,7 @@ public interface ProductService {
 
     Product getProductById(Long id);
 
+
     Product saveProduct(Product product);
 
     Product updateProduct(Product product, Long id);
@@ -19,6 +20,8 @@ public interface ProductService {
     void deleteProductById(Long id);
 
     Page<Product> findByCategoryId(Long categoryId, Pageable page);
+
+    Page<Product> findByCategoryName(String categoryName, Pageable page);
 
     Page<Product> findByArtist(String artist, Pageable page);
 

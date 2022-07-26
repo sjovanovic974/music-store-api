@@ -51,19 +51,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product saveProduct(Product product) {
 
-        // check if category already exist
-        Optional<ProductCategory> category =
-                productCategoryRepository.findByName(product.getCategory().getName());
-
-        category.ifPresentOrElse(product::setCategory, () -> {
-            throw new CustomBadRequestException("You must use valid category!");
-        });
-
-        // check if artist already exist
-        Optional<Artist> artist = artistRepository.findByName(product.getArtist().getName());
-        artist.ifPresentOrElse(product::setArtist, () -> {
-            throw new CustomBadRequestException("No such artist in DB!");
-        });
+        checkForCategoryAndArtistExistenceInDB(product);
 
         // default sku value
         String nextSku = product.getCategory().getName() + "-000001";
@@ -82,9 +70,25 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
+    private void checkForCategoryAndArtistExistenceInDB(Product product) {
+        // check if category already exist
+        Optional<ProductCategory> category =
+                productCategoryRepository.findByNameIgnoreCase(product.getCategory().getName());
+
+        category.ifPresentOrElse(product::setCategory, () -> {
+            throw new CustomBadRequestException("You must use valid category!");
+        });
+
+        // check if artist already exist
+        Optional<Artist> artist = artistRepository.findByName(product.getArtist().getName());
+        artist.ifPresentOrElse(product::setArtist, () -> {
+            throw new CustomBadRequestException("No such artist in DB!");
+        });
+    }
+
     public String getNextSku(Product product, Product lastSaved) {
 
-        String categoryName = product.getCategory().getName().toString();
+        String categoryName = product.getCategory().getName();
 
         //Extracting number from the sku, adding 1 for dash "-" after categoryName
         String currentSkuNumber = lastSaved.getSku().substring(categoryName.length() + 1);
@@ -97,13 +101,25 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product updateProduct(Product product, Long id) {
-        productRepository.findById(id)
+        Product productFromDB = productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cannot update product! Product with id " + id + " was not found!");
                     return new CustomBadRequestException("Cannot update product! Product with id "
                             + id + " was not found!");
                 });
 
+        checkForCategoryAndArtistExistenceInDB(product);
+
+        product.setId(productFromDB.getId());
+        product.setSku(productFromDB.getSku());
+        product.setDateCreated(productFromDB.getDateCreated());
+        product.setLastUpdated(productFromDB.getLastUpdated());
+
+        if (!productFromDB.getCategory().getName().equals(product.getCategory().getName())) {
+            throw new CustomBadRequestException("You are not allowed to change category! " +
+                    product.getCategory().getName() + " does not correspond to sku " +
+                    productFromDB.getSku());
+        }
         return productRepository.save(product);
     }
 
@@ -129,6 +145,11 @@ public class ProductServiceImpl implements ProductService {
         }
 
         return products;
+    }
+
+    @Override
+    public Page<Product> findByCategoryName(String categoryName, Pageable page) {
+        return productRepository.findByCategoryNameIgnoreCase(categoryName, page);
     }
 
     @Override

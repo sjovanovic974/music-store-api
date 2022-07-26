@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -28,6 +29,7 @@ public class Artist {
 
     @NotNull
     @Size(min=1, max=50)
+    @NotBlank
     @Column(name = "name", nullable = false)
     private String name;
 
