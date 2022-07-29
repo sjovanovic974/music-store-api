@@ -2,6 +2,7 @@ package com.example.demo.error;
 
 import com.example.demo.error.exceptions.CustomApiNotFoundException;
 import com.example.demo.error.exceptions.CustomBadRequestException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -70,9 +71,16 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponseMessage> handleException(
             Exception exception, HttpServletRequest httpServletRequest) {
 
+        String message = exception.getMessage();
+
+        if (exception instanceof DataIntegrityViolationException) {
+            if (exception.getMessage().contains("users.UK_Email")) {
+                message = "Email is already taken!";
+            }
+        }
         ErrorResponseMessage error = new ErrorResponseMessage(
                 HttpStatus.BAD_REQUEST.value(),
-                exception.getMessage(),
+                message,
                 httpServletRequest.getServletPath());
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);

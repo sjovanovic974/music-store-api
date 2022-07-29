@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.util.List;
 
-@Profile({"devH2", "devMySQL"})
+@Profile({"devH2"})
 @Component
 public class DataLoader implements CommandLineRunner {
 

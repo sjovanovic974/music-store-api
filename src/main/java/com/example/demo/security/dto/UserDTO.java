@@ -28,20 +28,13 @@ public class UserDTO {
 
     @NotNull
     @NotBlank(message = "Password field cannot be empty!")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,10}$",
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",
             message = "Enter valid password!")
     private String password;
 
-    @NotNull
-    @NotBlank(message = "Matching Password field cannot be empty!")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,10}$",
-            message = "Enter valid password!")
     private String matchingPassword;
 
     @AssertTrue(message = "Passwords should match")
-    private boolean passwordsEqual = isPasswordsEqual();
-
-
     public boolean isPasswordsEqual() {
         try {
             return password.equals(matchingPassword);
