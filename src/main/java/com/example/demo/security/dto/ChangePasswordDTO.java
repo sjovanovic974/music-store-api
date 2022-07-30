@@ -1,26 +1,11 @@
 package com.example.demo.security.dto;
 
 import com.example.demo.security.validation.ValidEmail;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
-
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class UserDTO {
-
-    @NotNull
-    @Size(min = 2, max = 25)
-    @NotBlank
-    private String firstName;
-
-    @NotNull
-    @Size(min = 2, max = 25)
-    @NotBlank
-    private String lastName;
+public class ChangePasswordDTO {
 
     @NotNull
     @NotBlank
@@ -28,17 +13,23 @@ public class UserDTO {
     private String email;
 
     @NotNull
-    @NotBlank(message = "Password field cannot be empty!")
+    @NotBlank(message = "Old password field cannot be empty!")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",
             message = "Enter valid password!")
-    private String password;
+    private String oldPassword;
+
+    @NotNull
+    @NotBlank(message = "New password field cannot be empty!")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",
+            message = "Enter valid password!")
+    private String newPassword;
 
     private String matchingPassword;
 
-    @AssertTrue(message = "Password and matching password should match")
+    @AssertTrue(message = "Old and new passwords should match")
     public boolean isPasswordsEqual() {
         try {
-            return password.equals(matchingPassword);
+            return newPassword.equals(matchingPassword);
         } catch (NullPointerException e) {
             return false;
         }

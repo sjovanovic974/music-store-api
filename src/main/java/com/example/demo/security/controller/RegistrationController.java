@@ -1,5 +1,7 @@
 package com.example.demo.security.controller;
 
+import com.example.demo.error.exceptions.CustomApiNotFoundException;
+import com.example.demo.security.dto.ChangePasswordDTO;
 import com.example.demo.security.dto.PasswordChangeByEmailDTO;
 import com.example.demo.security.dto.PasswordSaveDTO;
 import com.example.demo.security.dto.UserDTO;
@@ -78,11 +80,11 @@ public class RegistrationController {
     public String resetPassword(
             @Valid @RequestBody PasswordChangeByEmailDTO passwordChangeByEmailDTO, HttpServletRequest http) {
         User user = userService.findUserByEmail(passwordChangeByEmailDTO.getEmail());
-        String url = "";
+
         if (user != null) {
             String token = UUID.randomUUID().toString();
             userService.createPasswordResetTokenForUser(user, token);
-            url = applicationUrl(http)
+            String url = applicationUrl(http)
                     + "/savePassword?token="
                     + token;
 
@@ -96,7 +98,8 @@ public class RegistrationController {
     }
 
     @PostMapping("/savePassword")
-    public String savePassword(@RequestParam("token") String token, @Valid @RequestBody PasswordSaveDTO passwordDTO) {
+    public String savePassword(@RequestParam("token") String token,
+                               @Valid @RequestBody PasswordSaveDTO passwordDTO) {
         boolean result = userService.validatePasswordResetToken(token);
         if (!result) {
             return "Invalid token!";
@@ -106,10 +109,27 @@ public class RegistrationController {
         if (user.isPresent()) {
             userService.changePassword(user.get(), passwordDTO.getNewPassword());
             userService.deletePasswordResetToken(token);
-            return "Password reset successful.";
+            return "Password changed successfully.";
         }
 
         return "Invalid token!";
+    }
+    @PostMapping("/changePassword")
+    public String changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
+        User user = userService.findUserByEmail(changePasswordDTO.getEmail());
+
+        if (user == null) {
+            return "Invalid user!";
+        }
+
+        if (!userService.checkIfValidOldPassword(user, changePasswordDTO.getOldPassword())) {
+            return "Invalid old password!";
+        }
+
+        //Save new password
+        userService.changePassword(user, changePasswordDTO.getNewPassword());
+
+        return "Password changed successfully";
     }
 }
 

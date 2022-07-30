@@ -28,7 +28,7 @@ public class PasswordResetEventListener implements
 
         // send email to the user
         String emailBody = "<p>Click on link <a href=" + url + ">" + url + "</a> to " +
-                "reset your password</p>";
+                "change your password</p>";
 
         try {
             emailSenderService.sendEmail(user.getEmail(), emailBody, "Reset password");

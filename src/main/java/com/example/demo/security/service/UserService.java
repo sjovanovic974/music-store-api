@@ -26,4 +26,6 @@ public interface UserService {
     void changePassword(User user, String newPassword);
 
     void deletePasswordResetToken(String token);
+
+    boolean checkIfValidOldPassword(User user, String oldPassword);
 }

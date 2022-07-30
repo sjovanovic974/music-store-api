@@ -115,8 +115,6 @@ public class UserServiceImpl implements UserService {
             throw new CustomBadRequestException("Token expired!");
         }
 
-        User user = passwordResetToken.getUser();
-
         return true;
     }
 
@@ -134,6 +132,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deletePasswordResetToken(String token) {
         passwordResetTokenRepository.deleteByToken(token);
+    }
+
+    @Override
+    public boolean checkIfValidOldPassword(User user, String oldPassword) {
+        return passwordEncoder.matches(oldPassword, user.getPassword());
     }
 }
 
