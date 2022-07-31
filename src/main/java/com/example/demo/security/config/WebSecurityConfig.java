@@ -11,9 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     private static final String[] WHITE_LIST_URLS = {
-            "/api/registration",
-            "/api/verifyRegistration",
-            "/api/resendToken"
+            "/api/registration/**"
     };
 
     @Bean
@@ -29,7 +27,9 @@ public class WebSecurityConfig {
                 .csrf()
                 .disable()
                 .authorizeHttpRequests()
-                .antMatchers(WHITE_LIST_URLS).permitAll();
+                .antMatchers(WHITE_LIST_URLS).permitAll()
+                .anyRequest()
+                .authenticated();
 
         return httpSecurity.build();
     }
