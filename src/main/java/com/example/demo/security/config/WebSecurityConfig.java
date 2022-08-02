@@ -1,16 +1,25 @@
 package com.example.demo.security.config;
 
-import com.example.demo.security.model.UserRole;
+import com.example.demo.security.auth.ApplicationUserService;
+import com.example.demo.security.jwt.JwtConfig;
+import com.example.demo.security.jwt.JwtTokenVerifier;
+import com.example.demo.security.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import javax.crypto.SecretKey;
+
 import static com.example.demo.security.model.UserPermission.PRODUCT_WRITE;
-import static com.example.demo.security.model.UserRole.*;
+import static com.example.demo.security.model.UserRole.ADMIN;
+import static com.example.demo.security.model.UserRole.USER;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -20,18 +29,43 @@ public class WebSecurityConfig {
             "/api/registration/**"
     };
 
+    private final PasswordEncoder passwordEncoder;
+    private final ApplicationUserService applicationUserService;
+    private final SecretKey secretKey;
+    private final JwtConfig jwtConfig;
+
+    public WebSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService, SecretKey secretKey, JwtConfig jwtConfig) {
+        this.passwordEncoder = passwordEncoder;
+        this.applicationUserService = applicationUserService;
+        this.secretKey = secretKey;
+        this.jwtConfig = jwtConfig;
+    }
+
+    private DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder);
+        provider.setUserDetailsService(applicationUserService);
+        return provider;
+    }
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(11);
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        AuthenticationManager authenticationManager = httpSecurity.getSharedObject(AuthenticationManager.class);
+
         httpSecurity
-                .cors()
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .csrf()
-                .disable()
+                .addFilter(new JwtUsernameAndPasswordAuthenticationFilter(
+                        authenticationManager(httpSecurity.getSharedObject(AuthenticationConfiguration.class)),
+                        jwtConfig, secretKey))
+                .addFilterAfter(new JwtTokenVerifier(secretKey, jwtConfig),
+                        JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
                 .antMatchers(WHITE_LIST_URLS).permitAll()
                 .antMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority(PRODUCT_WRITE.getPermission())
@@ -43,7 +77,7 @@ public class WebSecurityConfig {
                 .anyRequest()
                 .authenticated()
                 .and()
-                .httpBasic();
+                .authenticationProvider(daoAuthenticationProvider());
 
         return httpSecurity.build();
     }
