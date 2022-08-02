@@ -4,6 +4,7 @@ import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.security.dto.UserDTO;
 import com.example.demo.security.model.PasswordResetToken;
 import com.example.demo.security.model.User;
+import com.example.demo.security.model.UserRole;
 import com.example.demo.security.model.VerificationToken;
 import com.example.demo.security.repository.PasswordResetTokenRepository;
 import com.example.demo.security.repository.UserRepository;
@@ -16,6 +17,8 @@ import javax.transaction.Transactional;
 import java.util.Calendar;
 import java.util.Optional;
 import java.util.UUID;
+
+import static com.example.demo.security.model.UserRole.USER;
 
 @Service
 @Transactional
@@ -34,7 +37,7 @@ public class UserServiceImpl implements UserService {
         user.setLastName(userDTO.getLastName());
         user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setRole("USER");
+        user.setRole(USER.name());
 
         return userRepository.save(user);
     }

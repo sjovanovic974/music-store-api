@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
+import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.model.ProductCategory;
 import com.example.demo.repository.ProductCategoryRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -31,4 +33,20 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public void deleteCategory(Long id) {
         productCategoryRepository.deleteById(id);
     }
+
+    @Override
+    public List<ProductCategory> getCategories() {
+        return productCategoryRepository.findAll();
+    }
+
+    @Override
+    public ProductCategory updateCategory(Long id, ProductCategory category) {
+        Optional<ProductCategory> dbCategory = productCategoryRepository.findById(id);
+        if (dbCategory.isEmpty()) {
+            throw new CustomBadRequestException("No product with id: " + id  + " in system!");
+        }
+        dbCategory.get().setName(category.getName());
+        return productCategoryRepository.save(dbCategory.get());
+    }
+
 }

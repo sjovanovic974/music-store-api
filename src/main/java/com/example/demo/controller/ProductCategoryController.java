@@ -5,6 +5,7 @@ import com.example.demo.service.ProductCategoryService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-categories")
@@ -16,6 +17,11 @@ public class ProductCategoryController {
         this.productCategoryService = productCategoryService;
     }
 
+    @GetMapping
+    public List<ProductCategory> getCategories() {
+        return productCategoryService.getCategories();
+    }
+
     @PostMapping
     public ProductCategory saveProductCategory(@Valid @RequestBody ProductCategory category) {
         ProductCategory productCategory = ProductCategory.builder()
@@ -23,6 +29,11 @@ public class ProductCategoryController {
                 .build();
 
         return productCategoryService.saveProductCategory(productCategory);
+    }
+
+    @PutMapping("/{id}")
+    public ProductCategory updateCategory(@PathVariable("id") Long id, @RequestBody ProductCategory category) {
+        return productCategoryService.updateCategory(id, category);
     }
 
     @DeleteMapping("/{id}")
