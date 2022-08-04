@@ -1,7 +1,7 @@
 package com.example.demo.security.auth;
 
-import com.example.demo.security.model.User;
-import com.example.demo.security.repository.UserRepository;
+import com.example.demo.security.registration.model.User;
+import com.example.demo.security.registration.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Repository;
@@ -9,8 +9,8 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.example.demo.security.model.UserRole.ADMIN;
-import static com.example.demo.security.model.UserRole.USER;
+import static com.example.demo.security.registration.model.UserRole.ADMIN;
+import static com.example.demo.security.registration.model.UserRole.USER;
 @Repository("MySQL")
 @RequiredArgsConstructor
 public class MySQLUserDaoService implements ApplicationUserDao {

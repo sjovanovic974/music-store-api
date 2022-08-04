@@ -1,9 +1,9 @@
 package com.example.demo.security.config;
 
 import com.example.demo.security.auth.ApplicationUserService;
-import com.example.demo.security.jwt.JwtConfig;
-import com.example.demo.security.jwt.JwtTokenVerifier;
-import com.example.demo.security.jwt.JwtUsernameAndPasswordAuthenticationFilter;
+import com.example.demo.security.auth.jwt.JwtConfig;
+import com.example.demo.security.auth.jwt.JwtTokenVerifier;
+import com.example.demo.security.auth.jwt.JwtUsernameAndPasswordAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,9 +17,9 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import javax.crypto.SecretKey;
 
-import static com.example.demo.security.model.UserPermission.PRODUCT_WRITE;
-import static com.example.demo.security.model.UserRole.ADMIN;
-import static com.example.demo.security.model.UserRole.USER;
+import static com.example.demo.security.registration.model.UserPermission.PRODUCT_WRITE;
+import static com.example.demo.security.registration.model.UserRole.ADMIN;
+import static com.example.demo.security.registration.model.UserRole.USER;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -34,7 +34,10 @@ public class WebSecurityConfig {
     private final SecretKey secretKey;
     private final JwtConfig jwtConfig;
 
-    public WebSecurityConfig(PasswordEncoder passwordEncoder, ApplicationUserService applicationUserService, SecretKey secretKey, JwtConfig jwtConfig) {
+    public WebSecurityConfig(PasswordEncoder passwordEncoder,
+                             ApplicationUserService applicationUserService,
+                             SecretKey secretKey,
+                             JwtConfig jwtConfig) {
         this.passwordEncoder = passwordEncoder;
         this.applicationUserService = applicationUserService;
         this.secretKey = secretKey;
@@ -49,13 +52,13 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        AuthenticationManager authenticationManager = httpSecurity.getSharedObject(AuthenticationManager.class);
 
         httpSecurity
                 .csrf().disable()
@@ -68,9 +71,12 @@ public class WebSecurityConfig {
                         JwtUsernameAndPasswordAuthenticationFilter.class)
                 .authorizeHttpRequests()
                 .antMatchers(WHITE_LIST_URLS).permitAll()
-                .antMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority(PRODUCT_WRITE.getPermission())
-                .antMatchers(HttpMethod.PUT, "/api/products/**").hasAuthority(PRODUCT_WRITE.getPermission())
-                .antMatchers(HttpMethod.POST, "/api/products/**").hasAuthority(PRODUCT_WRITE.getPermission())
+                .antMatchers(HttpMethod.DELETE, "/api/products/**")
+                    .hasAuthority(PRODUCT_WRITE.getPermission())
+                .antMatchers(HttpMethod.PUT, "/api/products/**")
+                    .hasAuthority(PRODUCT_WRITE.getPermission())
+                .antMatchers(HttpMethod.POST, "/api/products/**")
+                    .hasAuthority(PRODUCT_WRITE.getPermission())
                 .antMatchers("/api/artists/**").hasRole(ADMIN.name())
                 .antMatchers("/api/product-categories/**").hasRole(ADMIN.name())
                 .antMatchers("/api/products/**").hasAnyRole(USER.name(), ADMIN.name())

@@ -19,7 +19,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(value = {CustomApiNotFoundException.class})
+    @ExceptionHandler(CustomApiNotFoundException.class)
     public ResponseEntity<ErrorResponseMessage> handleCustomApiNotFoundException
             (CustomApiNotFoundException exception, HttpServletRequest httpServletRequest) {
 
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(value = {CustomBadRequestException.class})
+    @ExceptionHandler(CustomBadRequestException.class)
     public ResponseEntity<ErrorResponseMessage> handleCustomBadRequestException
             (CustomBadRequestException exception, HttpServletRequest httpServletRequest) {
 
@@ -45,7 +45,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
+    @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseMessage> handleMethodArgumentNotValidException
             (MethodArgumentNotValidException exception, HttpServletRequest httpServletRequest) {
 
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(value = {Exception.class})
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseMessage> handleException(
             Exception exception, HttpServletRequest httpServletRequest) {
 

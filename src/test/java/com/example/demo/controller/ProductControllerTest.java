@@ -1,19 +1,21 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.ProductDTO;
+import com.example.demo.api.controller.ProductController;
+import com.example.demo.api.dto.ProductDTO;
+import com.example.demo.api.model.Artist;
+import com.example.demo.api.model.Product;
+import com.example.demo.api.model.ProductCategory;
+import com.example.demo.api.service.ArtistService;
+import com.example.demo.api.service.ProductCategoryService;
+import com.example.demo.api.service.ProductService;
 import com.example.demo.error.exceptions.CustomBadRequestException;
-import com.example.demo.model.Artist;
-import com.example.demo.model.Product;
-import com.example.demo.model.ProductCategory;
-import com.example.demo.service.ArtistService;
-import com.example.demo.service.ProductCategoryService;
-import com.example.demo.service.ProductService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.Page;
@@ -22,24 +24,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultHandler;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(controllers = ProductController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ProductControllerTest {
 
     @MockBean
@@ -233,7 +233,7 @@ public class ProductControllerTest {
 
         // then
         mockMvc.perform(get("/api/products")
-                        .contentType("application/json"))
+                .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content.size()", is(size)))
@@ -278,25 +278,23 @@ public class ProductControllerTest {
                 .andExpect(status().isCreated())
                 .andDo(print())
                 .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.name").value(product.getName()))
-                .andExpect(jsonPath("$.category").value(product.getCategory().getName()))
-                .andExpect(jsonPath("$.active").value(product.isActive()))
-                .andExpect(jsonPath("$.unitsInStock").value(product.getUnitsInStock()));
+                .andExpect(jsonPath("$.name").value(input.getName()))
+                .andExpect(jsonPath("$.category").value(input.getCategory()))
+                .andExpect(jsonPath("$.active").value(input.isActive()))
+                .andExpect(jsonPath("$.unitsInStock").value(input.getUnitsInStock()));
     }
 
     @Test
     @DisplayName("Should return a bad request")
     void saveProductBadRequest() throws Exception {
         // given
-        Product product = products.get(0);
-        ProductDTO dtoProduct = ProductDTO.convertToResponseProductDTO(product);
-        Product productToBeSaved = ProductDTO.convertToProductForSave(dtoProduct);
-        productToBeSaved.setCategory(null);
+        Product product = new Product();
+
 
         // then
         mockMvc.perform(post("/api/products")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(productToBeSaved)))
+                        .content(objectMapper.writeValueAsString(product)))
                 .andExpect(status().isBadRequest())
                 .andDo(print());
     }

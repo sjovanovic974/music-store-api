@@ -1,13 +1,14 @@
 package com.example.demo.service;
 
+import com.example.demo.api.service.ProductServiceImpl;
 import com.example.demo.error.exceptions.CustomApiNotFoundException;
 import com.example.demo.error.exceptions.CustomBadRequestException;
-import com.example.demo.model.Artist;
-import com.example.demo.model.Product;
-import com.example.demo.model.ProductCategory;
-import com.example.demo.repository.ArtistRepository;
-import com.example.demo.repository.ProductCategoryRepository;
-import com.example.demo.repository.ProductRepository;
+import com.example.demo.api.model.Artist;
+import com.example.demo.api.model.Product;
+import com.example.demo.api.model.ProductCategory;
+import com.example.demo.api.repository.ArtistRepository;
+import com.example.demo.api.repository.ProductCategoryRepository;
+import com.example.demo.api.repository.ProductRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
