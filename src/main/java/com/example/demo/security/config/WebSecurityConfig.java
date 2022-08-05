@@ -26,7 +26,9 @@ public class WebSecurityConfig {
 
     private static final String[] WHITE_LIST_URLS = {
             "/api/registration",
-            "/api/registration/**"
+            "/api/registration/**",
+            "/swagger-ui/**",
+            "/v3/api-docs/**"
     };
 
     private final PasswordEncoder passwordEncoder;
@@ -59,7 +61,6 @@ public class WebSecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-
         httpSecurity
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -72,11 +73,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests()
                 .antMatchers(WHITE_LIST_URLS).permitAll()
                 .antMatchers(HttpMethod.DELETE, "/api/products/**")
-                    .hasAuthority(PRODUCT_WRITE.getPermission())
+                .hasAuthority(PRODUCT_WRITE.getPermission())
                 .antMatchers(HttpMethod.PUT, "/api/products/**")
-                    .hasAuthority(PRODUCT_WRITE.getPermission())
+                .hasAuthority(PRODUCT_WRITE.getPermission())
                 .antMatchers(HttpMethod.POST, "/api/products/**")
-                    .hasAuthority(PRODUCT_WRITE.getPermission())
+                .hasAuthority(PRODUCT_WRITE.getPermission())
                 .antMatchers("/api/artists/**").hasRole(ADMIN.name())
                 .antMatchers("/api/product-categories/**").hasRole(ADMIN.name())
                 .antMatchers("/api/products/**").hasAnyRole(USER.name(), ADMIN.name())

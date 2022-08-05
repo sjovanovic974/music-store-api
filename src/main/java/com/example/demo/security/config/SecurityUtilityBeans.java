@@ -12,4 +12,5 @@ public class SecurityUtilityBeans {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(11);
     }
+
 }

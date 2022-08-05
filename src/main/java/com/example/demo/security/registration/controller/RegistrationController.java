@@ -10,6 +10,8 @@ import com.example.demo.security.registration.event.ResendTokenEvent;
 import com.example.demo.security.registration.model.User;
 import com.example.demo.security.registration.model.VerificationToken;
 import com.example.demo.security.registration.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -31,6 +33,11 @@ public class RegistrationController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(
+            tags = {"registration", "user"},
+            summary = "Registers a new user",
+            description = "Registers a new user. Input is validated against a number of constraints"
+    )
     public String registerUser(@Valid @RequestBody UserDTO userDTO, HttpServletRequest http) {
         User user = userService.registerUser(userDTO);
         publisher.publishEvent(new RegistrationCompleteEvent(
@@ -49,6 +56,13 @@ public class RegistrationController {
     }
 
     @GetMapping("/verifyRegistration")
+    @Operation(
+            tags = {"registration", "user"},
+            summary = "Verifies a registration",
+            description = "Verifies a registration. Confirmation link with a token is sent to user's email",
+            parameters = {@Parameter(name = "token", description = "Valid token",
+                    example = "0319c819-6ca3-4391-8807-91c4d0157f0b")}
+    )
     public String verifyRegistration(@RequestParam("token") String token) {
         boolean result = userService.validateVerificationToken(token);
         if (result) {
@@ -59,6 +73,13 @@ public class RegistrationController {
     }
 
     @GetMapping("/resendToken")
+    @Operation(
+            tags = {"registration", "user"},
+            summary = "Resends the token",
+            description = "Resends the token in case it has expired",
+            parameters = {@Parameter(name = "token", description = "Valid token",
+                    example = "0319c819-6ca3-4391-8807-91c4d0157f0b")}
+    )
     public String resendVerificationToken(
             @RequestParam("token") String oldToken, HttpServletRequest http) {
 
@@ -76,6 +97,11 @@ public class RegistrationController {
     }
 
     @PostMapping("/resetPassword")
+    @Operation(
+            tags = {"registration", "user"},
+            summary = "Resets a password",
+            description = "Resets a password. A link with a token is sent to user's email"
+    )
     public String resetPassword(
             @Valid @RequestBody PasswordChangeByEmailDTO passwordChangeByEmailDTO, HttpServletRequest http) {
         User user = userService.findUserByEmail(passwordChangeByEmailDTO.getEmail());
@@ -97,6 +123,13 @@ public class RegistrationController {
     }
 
     @PostMapping("/savePassword")
+    @Operation(
+            tags = {"registration", "user"},
+            summary = "Saves the password",
+            description = "Saves the password. Expects token in url. Input is validated against a set of constraints",
+            parameters = {@Parameter(name = "token", description = "Valid token",
+                    example = "0319c819-6ca3-4391-8807-91c4d0157f0b")}
+    )
     public String savePassword(@RequestParam("token") String token,
                                @Valid @RequestBody PasswordSaveDTO passwordDTO) {
         boolean result = userService.validatePasswordResetToken(token);
@@ -113,7 +146,13 @@ public class RegistrationController {
 
         return "Invalid token!";
     }
+
     @PostMapping("/changePassword")
+    @Operation(
+            tags = {"registration", "user"},
+            summary = "Changes the password",
+            description ="Changes the password. Input is validated against a set of constraints"
+    )
     public String changePassword(@Valid @RequestBody ChangePasswordDTO changePasswordDTO) {
         User user = userService.findUserByEmail(changePasswordDTO.getEmail());
 
