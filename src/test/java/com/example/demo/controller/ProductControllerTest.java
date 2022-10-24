@@ -223,9 +223,8 @@ public class ProductControllerTest {
         // given
         Pageable pageable = PageRequest.of(0, 5);
         Page<Product> productsPage = new PageImpl<>(products, pageable, products.size());
-        Page<ProductDTO> dtoPage = productsPage.map(ProductDTO::convertToResponseProductDTO);
 
-        int size = dtoPage.getContent().size();
+        int size = productsPage.getContent().size();
 
         // when
         when(productService.getProducts(Mockito.any(Pageable.class)))
@@ -233,7 +232,7 @@ public class ProductControllerTest {
 
         // then
         mockMvc.perform(get("/api/products")
-                .contentType("application/json"))
+                        .contentType("application/json"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.content.size()", is(size)))
@@ -290,6 +289,8 @@ public class ProductControllerTest {
         // given
         Product product = new Product();
 
+        // when
+        when(productService.saveProduct(Mockito.any(Product.class))).thenReturn(product);
 
         // then
         mockMvc.perform(post("/api/products")

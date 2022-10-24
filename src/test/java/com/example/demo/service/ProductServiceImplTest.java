@@ -200,7 +200,7 @@ public class ProductServiceImplTest {
 
 
     @Test
-    @DisplayName("Should find all product by page")
+    @DisplayName("Should find all products by page")
     void getProducts() {
         // given
         Pageable pageable = PageRequest.of(0, 5);
@@ -302,6 +302,7 @@ public class ProductServiceImplTest {
 
         // then
         assertThat(generatedSku).isGreaterThan(lastSavedInDB.getSku());
+        assertThat(generatedSku).isEqualTo("DVD-000011");
     }
 
     @Test

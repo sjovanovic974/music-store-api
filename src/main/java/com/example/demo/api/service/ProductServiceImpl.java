@@ -94,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
         String currentSkuNumber = lastSaved.getSku().substring(categoryName.length() + 1);
 
         // Adding 1 to the last saved sku number, i.e. simulating increment
-        Long number = (Long.parseLong(currentSkuNumber)) + 1;
+        Integer number = (Integer.parseInt(currentSkuNumber)) + 1;
 
         return categoryName + "-" + String.format("%06d", number);
     }
@@ -104,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
         Product productFromDB = productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cannot update product! Product with id " + id + " was not found!");
-                    return new CustomBadRequestException("Cannot update product! Product with id "
+                    throw new CustomBadRequestException("Cannot update product! Product with id "
                             + id + " was not found!");
                 });
 
@@ -127,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.findById(id)
                 .orElseThrow(() -> {
                     log.error("Cannot delete! Product with " + id + " was not found!");
-                    return new CustomBadRequestException("Cannot delete! Product with " +
+                    throw new CustomBadRequestException("Cannot delete! Product with " +
                             id + " was not found!");
                 });
 
@@ -142,13 +142,17 @@ public class ProductServiceImpl implements ProductService {
             log.error("No such category found!");
             throw new CustomApiNotFoundException("No such category found!");
         }
-
         return products;
     }
 
     @Override
     public Page<Product> findByCategoryName(String categoryName, Pageable page) {
-        return productRepository.findByCategoryNameIgnoreCase(categoryName, page);
+        Page<Product> products = productRepository.findByCategoryNameIgnoreCase(categoryName, page);
+        if (products.getContent().size() == 0) {
+            log.error("No such category found!");
+            throw new CustomApiNotFoundException("No such category found!");
+        }
+        return products;
     }
 
     @Override

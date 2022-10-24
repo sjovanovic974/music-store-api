@@ -86,6 +86,6 @@ public class WebSecurityConfig {
                 .and()
                 .authenticationProvider(daoAuthenticationProvider());
 
-        return httpSecurity.build();
+        return   httpSecurity.build();
     }
 }

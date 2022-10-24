@@ -1,4 +1,4 @@
-package com.example.demo.api.config;
+package com.example.demo.config;
 
 import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,7 @@
 package com.example.demo.security.registration.model;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
         @UniqueConstraint(name = "UK_Email", columnNames = "email")
 })
 @Data
+@NoArgsConstructor
 public class User {
 
     @Id

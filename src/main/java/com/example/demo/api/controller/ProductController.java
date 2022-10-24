@@ -140,7 +140,7 @@ public class ProductController {
     @Operation(
             tags = {"api", "user"},
             summary = "Gets a page of products by a query",
-            description = "Retrieves a page of products by a query. Searches through product name field." +
+            description = "Retrieves a page of products by a query. Searches by product name field." +
                     "Input query is case insensitive.",
             parameters = {@Parameter(name = "query", description = "String of characters", example = "met")}
     )

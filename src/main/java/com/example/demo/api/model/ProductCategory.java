@@ -33,7 +33,7 @@ public class ProductCategory {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @JsonIgnore
+
     @OneToMany(mappedBy = "category")
     List<Product> products;
 }
