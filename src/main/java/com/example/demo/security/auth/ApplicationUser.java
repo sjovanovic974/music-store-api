@@ -1,70 +1,56 @@
 package com.example.demo.security.auth;
 
+import com.example.demo.security.registration.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.Set;
 
+import static com.example.demo.security.registration.model.UserRole.ADMIN;
+import static com.example.demo.security.registration.model.UserRole.USER;
+@RequiredArgsConstructor
 public class ApplicationUser implements UserDetails {
 
-    private final String username;
-    private final String password;
-    private final boolean isAccountNonExpired;
-    private final boolean isAccountNonLocked;
-    private final boolean isCredentialsNonExpired;
-    private final boolean isEnabled;
-    private final Set<? extends GrantedAuthority> grantedAuthorities;
-
-    public ApplicationUser(String username,
-                           String password,
-                           boolean isAccountNonExpired,
-                           boolean isAccountNonLocked,
-                           boolean isCredentialsNonExpired,
-                           boolean isEnabled,
-                           Set<? extends GrantedAuthority> grantedAuthorities) {
-        this.username = username;
-        this.password = password;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;
-        this.grantedAuthorities = grantedAuthorities;
-    }
-
+    private final User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return grantedAuthorities;
+        String role = this.user.getRole();
+        if (role.equals("ADMIN")) {
+            return ADMIN.getGrantedAuthorities();
+        }
+
+        return USER.getGrantedAuthorities();
     }
 
     @Override
     public String getPassword() {
-        return password;
+        return user.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return username;
+        return user.getEmail();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return isAccountNonExpired;
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return isAccountNonLocked;
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return isCredentialsNonExpired;
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return isEnabled;
+        return user.isEnabled();
     }
 }

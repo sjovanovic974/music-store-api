@@ -2,8 +2,8 @@ package com.example.demo.security.registration.service;
 
 import com.example.demo.error.exceptions.CustomBadRequestException;
 import com.example.demo.security.registration.dto.UserDTO;
-import com.example.demo.security.registration.model.PasswordResetToken;
 import com.example.demo.security.registration.model.User;
+import com.example.demo.security.registration.model.PasswordResetToken;
 import com.example.demo.security.registration.model.VerificationToken;
 import com.example.demo.security.registration.repository.PasswordResetTokenRepository;
 import com.example.demo.security.registration.repository.UserRepository;
