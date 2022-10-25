@@ -3,9 +3,6 @@ package com.example.demo.security.registration.model;
 import com.google.common.collect.Sets;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -36,7 +33,7 @@ public enum UserRole {
                 .map(permission -> new SimpleGrantedAuthority(permission.getPermission()))
                 .collect(Collectors.toSet());
 
-        permissions.add(new SimpleGrantedAuthority("ROLE_" + this.name()));
+        permissions.add(new SimpleGrantedAuthority(this.name()));
 
         return permissions;
     }
